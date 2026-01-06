@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeachToLearn - Learn by Teaching Out Loud</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --black: #000000;
+            --bg-soft: #0a0a0f;
+            --purple-neon: #a855f7;
+            --purple-soft: #c084fc;
+            --purple-dim: rgba(168, 85, 247, 0.15);
+            --purple-glow: rgba(168, 85, 247, 0.5);
+            --text-white: #ffffff;
+            --text-gray: #a1a1aa;
+            --text-muted: #71717a;
+        }
+        
+        body {
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--black);
+            color: var(--text-white);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            position: relative;
+        }
+
+        /* Sticky Navigation Bar */
+        .navbar {
+            position: fixed;
+            top: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 3rem);
+            max-width: 1400px;
+            background: rgba(10, 10, 15, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 100px;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .navbar-logo {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text-white);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .navbar-links {
+            display: flex;
+            align-items: center;
+            gap: 2.5rem;
+        }
+
+        .navbar-link {
+            color: var(--text-gray);
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .navbar-link:hover {
+            color: var(--text-white);
+        }
+
+        .navbar-cta {
+            padding: 0.75rem 2rem;
+            background: rgba(168, 85, 247, 0.15);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 100px;
+            color: var(--text-white);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .navbar-cta:hover {
+            background: var(--purple-neon);
+            border-color: var(--purple-neon);
+            color: var(--text-white);
+            box-shadow: 0 4px 16px rgba(168, 85, 247, 0.4);
+        }
+
+        /* Stars Background */
+        .stars-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+            transition: transform 0.1s ease-out;
+        }
+
+        .star.small {
+            width: 1px;
+            height: 1px;
+        }
+
+        .star.medium {
+            width: 2px;
+            height: 2px;
+        }
+
+        .star.large {
+            width: 3px;
+            height: 3px;
+            opacity: 0.6;
+        }
+
+        /* Shooting Star */
+        .shooting-star {
+            position: fixed;
+            width: 3px;
+            height: 3px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 10px 4px rgba(255, 255, 255, 1), 0 0 20px 8px rgba(168, 85, 247, 0.5);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        @keyframes shootingStar {
+            0% {
+                opacity: 0;
+                transform: translateX(0) translateY(0);
+            }
+            5% {
+                opacity: 1;
+            }
+            95% {
+                opacity: 0.9;
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(-500px) translateY(500px);
+            }
+        }
+
+        .shooting-star.active {
+            animation: shootingStar 2s ease-out forwards;
+        }
+        
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-top: 80px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            z-index: 2;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--purple-glow) 0%, transparent 70%);
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: pulseGlow 6s ease-in-out infinite;
+        }
+        
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.1); }
+        }
+        
+        .hero-content {
+            max-width: 900px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero h1 {
+            font-size: 4.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.03em;
+        }
+        
+        .hero p {
+            font-size: 1.5rem;
+            color: var(--text-gray);
+            margin-bottom: 3rem;
+            line-height: 1.5;
+        }
+        
+        .cta-btn {
+            padding: 1.25rem 3.5rem;
+            background: var(--purple-neon);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.125rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 40px var(--purple-glow);
+        }
+        
+        .cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 50px var(--purple-glow);
+        }
+        
+        .cta-btn:active {
+            transform: translateY(0);
+        }
+        
+        .cta-btn-secondary {
+            padding: 1.25rem 3.5rem;
+            background: transparent;
+            border: 2px solid var(--purple-neon);
+            border-radius: 12px;
+            color: white;
+            font-size: 1.125rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .cta-btn-secondary:hover {
+            background: var(--purple-dim);
+            transform: translateY(-2px);
+        }
+        
+        .cta-btn-secondary:active {
+            transform: translateY(0);
+        }
+        
+        /* Section Base */
+        section {
+            padding: 8rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .section-title {
+            font-size: 3rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 4rem;
+            letter-spacing: -0.02em;
+        }
+        
+        /* How It Works Section */
+        .how-it-works {
+            background: var(--bg-soft);
+        }
+        
+        .steps-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 2rem;
+            padding: 3rem 0;
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+        
+        .step:nth-child(1) { animation-delay: 0.1s; }
+        .step:nth-child(2) { animation-delay: 0.2s; }
+        .step:nth-child(3) { animation-delay: 0.3s; }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .step-icon-wrapper {
+            position: relative;
+            flex-shrink: 0;
+        }
+        
+        .step-connector {
+            position: absolute;
+            left: 50%;
+            top: 100%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 3rem;
+            background: linear-gradient(to bottom, var(--purple-neon), transparent);
+        }
+        
+        .step:last-child .step-connector {
+            display: none;
+        }
+        
+        .step-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--purple-dim);
+            border: 2px solid var(--purple-neon);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 0 30px var(--purple-glow);
+        }
+        
+        .step-content {
+            flex: 1;
+            padding-top: 0.5rem;
+        }
+        
+        .step-number {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--purple-soft);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+        
+        .step-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.01em;
+        }
+        
+        .step-description {
+            font-size: 1.125rem;
+            color: var(--text-gray);
+            line-height: 1.6;
+        }
+        
+        /* Benefits Section */
+        .benefits {
+            padding-top: 10rem;
+            padding-bottom: 10rem;
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+            margin-top: 5rem;
+        }
+        
+        .benefit-card {
+            padding: 3rem 2.5rem;
+            border: 2px solid var(--purple-dim);
+            border-radius: 16px;
+            transition: all 0.4s ease;
+            background: rgba(0, 0, 0, 0.5);
+        }
+        
+        .benefit-card:hover {
+            border-color: var(--purple-neon);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px var(--purple-glow);
+        }
+        
+        .benefit-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+        
+        .benefit-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: -0.01em;
+        }
+        
+        .benefit-description {
+            font-size: 1.125rem;
+            color: var(--text-gray);
+            line-height: 1.7;
+        }
+        
+        /* Final CTA Section */
+        .final-cta {
+            background: var(--bg-soft);
+            padding: 10rem 2rem;
+            text-align: center;
+        }
+        
+        .final-cta-content {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .final-cta h2 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+        }
+        
+        .final-cta p {
+            font-size: 1.25rem;
+            color: var(--text-gray);
+            margin-bottom: 3rem;
+        }
+        
+        /* Footer */
+        footer {
+            padding: 4rem 2rem;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--text-white);
+        }
+        
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0.875rem 1.25rem;
+                width: calc(100% - 2rem);
+                top: 1rem;
+            }
+
+            .navbar-logo {
+                font-size: 1.15rem;
+            }
+
+            .navbar-links {
+                gap: 1rem;
+            }
+
+            .navbar-link {
+                font-size: 0.85rem;
+            }
+
+            .navbar-cta {
+                padding: 0.6rem 1.25rem;
+                font-size: 0.9rem;
+                font-size: 0.9rem;
+            }
+
+            .hero h1 {
+                font-size: 2.75rem;
+            }
+            
+            .hero p {
+                font-size: 1.125rem;
+            }
+            
+            .section-title {
+                font-size: 2.25rem;
+            }
+            
+            .step {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            
+            .step-connector {
+                left: 50%;
+            }
+            
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .final-cta h2 {
+                font-size: 2.5rem;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+        }
+        
+        /* Smooth scroll behavior */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Selection color */
+        ::selection {
+            background: var(--purple-neon);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Stars Background -->
+    <div class="stars-container" id="starsContainer"></div>
+    
+    <!-- Shooting Stars -->
+    <div class="shooting-star" id="shootingStar1"></div>
+    <div class="shooting-star" id="shootingStar2"></div>
+    <div class="shooting-star" id="shootingStar3"></div>
+
+    <!-- Sticky Navigation Bar -->
+    <nav class="navbar">
+        <a href="#" class="navbar-logo">
+            TeachToLearn
+        </a>
+        <div class="navbar-links">
+            <a href="#how-it-works" class="navbar-link">How It Works</a>
+            <a href="#benefits" class="navbar-link">Benefits</a>
+            <a href="#about" class="navbar-link">About</a>
+        </div>
+        <button class="navbar-cta" id="navbarCta">Start now</button>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Learn by teaching out loud</h1>
+            <p>Your AI study partner listens, challenges you, and builds your confidence.</p>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <button class="cta-btn" id="heroStart">Get Started</button>
+                <button class="cta-btn-secondary" onclick="document.getElementById('how-it-works').scrollIntoView({behavior: 'smooth'})">Learn More</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works" id="how-it-works">
+        <h2 class="section-title">How It Works – It's Simple</h2>
+        <div class="steps-container">
+            <div class="step">
+                <div class="step-icon-wrapper">
+                    <div class="step-icon">🎤</div>
+                    <div class="step-connector"></div>
+                </div>
+                <div class="step-content">
+                    <div class="step-number">Step 1</div>
+                    <h3 class="step-title">Click & Speak</h3>
+                    <p class="step-description">Click the microphone and start teaching what you're learning.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-icon-wrapper">
+                    <div class="step-icon">🧠</div>
+                    <div class="step-connector"></div>
+                </div>
+                <div class="step-content">
+                    <div class="step-number">Step 2</div>
+                    <h3 class="step-title">AI Listens</h3>
+                    <p class="step-description">The AI understands your explanation and follows along.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-icon-wrapper">
+                    <div class="step-icon">💬</div>
+                </div>
+                <div class="step-content">
+                    <div class="step-number">Step 3</div>
+                    <h3 class="step-title">Get Feedback</h3>
+                    <p class="step-description">It asks questions and gently corrects mistakes.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="benefits" id="benefits">
+        <h2 class="section-title">Why It Works</h2>
+        <div class="benefits-grid">
+            <div class="benefit-card">
+                <span class="benefit-icon">🎯</span>
+                <h3 class="benefit-title">Better Focus</h3>
+                <p class="benefit-description">Speaking out loud keeps your mind engaged and prevents distractions.</p>
+            </div>
+
+            <div class="benefit-card">
+                <span class="benefit-icon">⚡</span>
+                <h3 class="benefit-title">Learn Faster</h3>
+                <p class="benefit-description">Teaching forces your brain to organize and understand deeply.</p>
+            </div>
+
+            <div class="benefit-card">
+                <span class="benefit-icon">💪</span>
+                <h3 class="benefit-title">More Confidence</h3>
+                <p class="benefit-description">No judgment, just supportive feedback that builds you up.</p>
+            </div>
+
+            <div class="benefit-card">
+                <span class="benefit-icon">🧩</span>
+                <h3 class="benefit-title">Less Overwhelm</h3>
+                <p class="benefit-description">One simple action: click and speak. No complex features.</p>
+            </div>
+
+            <div class="benefit-card">
+                <span class="benefit-icon">🔄</span>
+                <h3 class="benefit-title">Active Recall</h3>
+                <p class="benefit-description">The most effective study method, backed by research.</p>
+            </div>
+
+            <div class="benefit-card">
+                <span class="benefit-icon">🌙</span>
+                <h3 class="benefit-title">Calm Experience</h3>
+                <p class="benefit-description">Designed for ADHD: minimal UI, gentle feedback, no pressure.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA Section -->
+    <section class="final-cta">
+        <div class="final-cta-content">
+            <h2>Learn smarter, faster, easier.</h2>
+            <p>Start teaching out loud today. No setup required.</p>
+            <button class="cta-btn" id="finalCta">Get Started Free</button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="about">
+        <div class="footer-links">
+            <a href="#how-it-works">How It Works</a>
+            <a href="#benefits">Benefits</a>
+            <a href="#about">About</a>
+            <a href="#contact">Contact</a>
+        </div>
+        <p class="footer-text">Made for ADHD learners • 2026</p>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Load Firebase config from server (loaded from .env on server-side)
+        let firebaseConfig;
+        try {
+            const configRes = await fetch('/api/firebase-config');
+            firebaseConfig = await configRes.json();
+        } catch (err) {
+            console.error('Failed to load Firebase config from server, using fallback:', err);
+            // Fallback config (same as default in server)
+            firebaseConfig = {
+                apiKey: "AIzaSyBSFzIVTqrnq21jVG71XmUuN19s7g9pt2I",
+                authDomain: "teachbackai-69ee6.firebaseapp.com",
+                projectId: "teachbackai-69ee6",
+                storageBucket: "teachbackai-69ee6.firebasestorage.app",
+                messagingSenderId: "930240111308",
+                appId: "1:930240111308:web:e477e73249eb2951b29869"
+            };
+        }
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
+        let currentUser = null;
+
+        async function saveUserData(user) {
+            try {
+                const userRef = doc(db, 'users', user.uid);
+                await setDoc(userRef, {
+                    email: user.email,
+                    displayName: user.displayName,
+                    photoURL: user.photoURL,
+                    lastLogin: serverTimestamp()
+                }, { merge: true });
+            } catch (error) {
+                console.error('Error saving user data:', error);
+            }
+        }
+
+        async function handleSignInOrGo() {
+            if (currentUser) {
+                window.location.href = '/pages/dashboard.html';
+                return;
+            }
+            try {
+                const result = await signInWithPopup(auth, provider);
+                currentUser = result.user;
+                await saveUserData(currentUser);
+                window.location.href = '/pages/dashboard.html';
+            } catch (error) {
+                if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
+                    alert('Login failed: ' + error.message);
+                }
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            const primaryCtas = [document.getElementById('heroStart'), document.getElementById('finalCta'), document.getElementById('navbarCta')].filter(Boolean);
+            primaryCtas.forEach(btn => {
+                if (btn) btn.textContent = user ? 'Go to Dashboard' : 'Get Started';
+            });
+        });
+
+        ['heroStart', 'finalCta', 'navbarCta'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('click', handleSignInOrGo);
+        });
+    </script>
+
+    <script>
+        const observerOptions = {
+            threshold: 0.2,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.benefit-card').forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = `all 0.6s ease ${index * 0.1}s`;
+            observer.observe(card);
+        });
+
+        const starsContainer = document.getElementById('starsContainer');
+        const numberOfStars = 150;
+
+        for (let i = 0; i < numberOfStars; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            
+            const size = Math.random();
+            if (size < 0.6) {
+                star.classList.add('small');
+            } else if (size < 0.9) {
+                star.classList.add('medium');
+            } else {
+                star.classList.add('large');
+            }
+            
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.dataset.speed = (Math.random() * 0.5 + 0.3).toFixed(2);
+            starsContainer.appendChild(star);
+        }
+
+        window.addEventListener('scroll', () => {
+            const scrollY = window.pageYOffset;
+            document.querySelectorAll('.star').forEach(star => {
+                const speed = parseFloat(star.dataset.speed);
+                const yPos = -(scrollY * speed * 0.5);
+                star.style.transform = `translateY(${yPos}px)`;
+            });
+        });
+
+        const shootingStars = [
+            document.getElementById('shootingStar1'),
+            document.getElementById('shootingStar2'),
+            document.getElementById('shootingStar3')
+        ];
+
+        function createShootingStar() {
+            const star = shootingStars[Math.floor(Math.random() * shootingStars.length)];
+            star.style.left = (Math.random() * 50 + 50) + '%';
+            star.style.top = (Math.random() * 30) + '%';
+            star.classList.remove('active');
+            void star.offsetWidth;
+            star.classList.add('active');
+            setTimeout(() => {
+                star.classList.remove('active');
+            }, 1800);
+        }
+
+        function scheduleShootingStar() {
+            createShootingStar();
+            const nextDelay = Math.random() * 2000 + 2000;
+            setTimeout(scheduleShootingStar, nextDelay);
+        }
+
+        setTimeout(scheduleShootingStar, 500);
+    </script>
+</body>
+</html>

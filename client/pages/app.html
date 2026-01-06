@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teach Out Loud - TeachToLearn</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --black: #000000;
+            --bg-soft: #0a0a0f;
+            --bg-card: #12121a;
+            --purple-neon: #a855f7;
+            --purple-soft: #c084fc;
+            --purple-dim: rgba(168, 85, 247, 0.15);
+            --purple-glow: rgba(168, 85, 247, 0.3);
+            --text-white: #ffffff;
+            --text-gray: #a1a1aa;
+            --text-muted: #71717a;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+        
+        body {
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--black);
+            color: var(--text-white);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header */
+        .header {
+            background: var(--bg-soft);
+            border-bottom: 1px solid var(--border);
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .back-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-gray);
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .back-btn:hover {
+            border-color: var(--purple-neon);
+            color: var(--text-white);
+            background: var(--purple-dim);
+        }
+        
+        .subject-badge {
+            background: var(--purple-dim);
+            border: 1px solid var(--purple-neon);
+            border-radius: 12px;
+            padding: 0.5rem 1.25rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--purple-soft);
+        }
+        
+        /* Main Container */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            width: 100%;
+            min-height: calc(100vh - 80px);
+            position: relative;
+        }
+        
+        .widget-container {
+            width: 85%;
+            max-width: 1200px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            position: relative;
+            left: 0;
+            right: 0;
+        }
+        
+        elevenlabs-convai {
+            width: 85vw !important;
+            max-width: 1200px !important;
+            height: 85vh !important;
+            min-height: 750px;
+            max-height: 900px;
+            border-radius: 16px;
+            overflow: hidden;
+            display: block !important;
+            margin: 0 auto !important;
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            bottom: auto !important;
+            right: auto !important;
+            transform: translate(-50%, -50%) !important;
+            z-index: 120;
+        }
+        
+        .info-text {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+            
+            .main-container {
+                padding: 1.5rem 1rem;
+                min-height: calc(100vh - 70px);
+            }
+            
+            .widget-container {
+                width: 95%;
+                padding: 2rem 1.5rem;
+            }
+            
+            elevenlabs-convai {
+                height: 75vh !important;
+                min-height: 600px;
+                max-height: 700px;
+            }
+        }
+        
+        /* Force the widget to stay centered (no sidebar mode) */
+        elevenlabs-convai * {
+            float: none !important;
+        }
+        
+        /* Ensure proper centering */
+        .widget-container {
+            text-align: center;
+        }
+        
+        .widget-container > * {
+            text-align: left;
+        }
+
+        /* Pomodoro widget */
+        .pomo-floating {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            bottom: auto;
+            z-index: 200;
+            transition: all 0.3s ease;
+        }
+        .pomo-card {
+            width: 320px;
+            background: linear-gradient(135deg, #1f1029 0%, #0f0a14 100%);
+            border: 2px solid rgba(168, 85, 247, 0.35);
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            color: #fff;
+        }
+        .pomo-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .pomo-title {
+            font-weight: 700;
+            color: var(--purple-soft);
+            font-size: 1rem;
+        }
+        .pomo-actions button {
+            background: transparent;
+            border: none;
+            color: var(--text-gray);
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+        }
+        .pomo-actions button:hover {
+            background: rgba(255,255,255,0.06);
+        }
+        .pomo-time {
+            font-size: 2.75rem;
+            font-weight: 800;
+            text-align: center;
+            margin: 8px 0;
+        }
+        .pomo-status {
+            text-align: center;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .pomo-progress {
+            width: 100%;
+            height: 10px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 999px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 12px;
+        }
+        .pomo-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #a855f7, #7c3aed);
+            transition: width 0.3s ease;
+        }
+        .pomo-badge {
+            text-align: center;
+            background: rgba(168, 85, 247, 0.12);
+            border: 1px solid rgba(168, 85, 247, 0.25);
+            color: var(--purple-soft);
+            font-weight: 700;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+        }
+        .pomo-mini {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #1f1029 0%, #0f0a14 100%);
+            border: 2px solid rgba(168, 85, 247, 0.35);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.45);
+            color: #fff;
+            cursor: pointer;
+        }
+        .pomo-mini span {
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+        .pomo-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 210;
+            padding: 1.5rem;
+        }
+        .pomo-modal.active {
+            display: flex;
+        }
+        .pomo-modal-card {
+            max-width: 520px;
+            width: 100%;
+            background: #0f0a14;
+            border: 2px solid rgba(168, 85, 247, 0.4);
+            border-radius: 24px;
+            padding: 24px;
+            color: #fff;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.55);
+            text-align: center;
+        }
+        .pomo-modal-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+        }
+        .pomo-modal-card p {
+            color: var(--text-gray);
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .pomo-modal-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .pomo-btn {
+            flex: 1;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: transform 0.15s ease, box-shadow 0.2s ease;
+        }
+        .pomo-btn:active { transform: translateY(1px); }
+        .pomo-btn-primary {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: #fff;
+            box-shadow: 0 10px 30px rgba(34,197,94,0.35);
+        }
+        .pomo-btn-secondary {
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            color: #fff;
+            box-shadow: 0 10px 30px rgba(99,102,241,0.35);
+        }
+        .pomo-btn-ghost {
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        @keyframes slide-in-pomo {
+            from { transform: translateX(120px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .pomo-card.animate {
+            animation: slide-in-pomo 0.35s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <a href="dashboard.html" class="back-btn">← Back</a>
+            <div class="subject-badge" id="subjectBadge">Loading...</div>
+        </div>
+    </header>
+    
+    <!-- Main Container -->
+    <div class="main-container">
+        <div class="widget-container">
+            <elevenlabs-convai
+                id="elevenlabsWidget"
+                agent-id="">
+            </elevenlabs-convai>
+            <p class="info-text">Speak naturally. The AI listens, understands, and responds in real time.</p>
+        </div>
+    </div>
+
+    <!-- Pomodoro Floating Widget -->
+    <div class="pomo-floating" id="pomoFloating">
+        <div class="pomo-card animate" id="pomoCard">
+            <div class="pomo-header">
+                <div class="pomo-title">Pomodoro Timer</div>
+                <div class="pomo-actions">
+                    <button id="pomoMinimize" title="Minimize">▁</button>
+                    <button id="pomoHide" title="Hide">✕</button>
+                </div>
+            </div>
+            <div class="pomo-time" id="pomoTime">0:00</div>
+            <div class="pomo-status" id="pomoStatus">🚀 Learning mode</div>
+            <div class="pomo-progress">
+                <div class="pomo-progress-bar" id="pomoProgress"></div>
+            </div>
+            <div class="pomo-badge" id="pomoBadge">Check-in at 10m</div>
+        </div>
+        <div class="pomo-mini" id="pomoMini" style="display:none;">
+            <span>⏱️</span>
+            <span id="pomoMiniTime">0:00</span>
+        </div>
+    </div>
+
+    <!-- Pomodoro Modals -->
+    <div class="pomo-modal" id="pomoModal10">
+        <div class="pomo-modal-card">
+            <h3>Hey there, superstar! 🌟</h3>
+            <p>You've been focused for 10 minutes. Keep going or take a quick break?</p>
+            <div class="pomo-modal-actions">
+                <button class="pomo-btn pomo-btn-primary" data-action="continue-10">🚀 Keep Learning</button>
+                <button class="pomo-btn pomo-btn-secondary" data-action="break-10">☕ Take a Break</button>
+                <button class="pomo-btn pomo-btn-ghost" data-action="close-10">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="pomo-modal" id="pomoModal25">
+        <div class="pomo-modal-card">
+            <h3>Awesome work! 🎉</h3>
+            <p>25 minutes in. You can take a break or keep rolling—your choice.</p>
+            <div class="pomo-modal-actions">
+                <button class="pomo-btn pomo-btn-secondary" data-action="break-25">🌈 Take a Break</button>
+                <button class="pomo-btn pomo-btn-primary" data-action="continue-25">⭐ Keep Going</button>
+                <button class="pomo-btn pomo-btn-ghost" data-action="close-25">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ElevenLabs Conversational Agent Widget -->
+    <script
+        src="https://unpkg.com/@elevenlabs/convai-widget-embed"
+        async
+        type="text/javascript">
+    </script>
+
+    <!-- Firebase (used to log sessions for Automated Learning Notes) -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Load Firebase config from server (loaded from .env on server-side)
+        let firebaseConfig;
+        try {
+            const configRes = await fetch('/api/firebase-config');
+            firebaseConfig = await configRes.json();
+        } catch (err) {
+            console.error('Failed to load Firebase config from server, using fallback:', err);
+            // Fallback config (same as default in server)
+            firebaseConfig = {
+                apiKey: "AIzaSyBSFzIVTqrnq21jVG71XmUuN19s7g9pt2I",
+                authDomain: "teachbackai-69ee6.firebaseapp.com",
+                projectId: "teachbackai-69ee6",
+                storageBucket: "teachbackai-69ee6.firebasestorage.app",
+                messagingSenderId: "930240111308",
+                appId: "1:930240111308:web:e477e73249eb2951b29869",
+                elevenLabsAgentId: "" // Will need to be set in .env
+            };
+        }
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Set ElevenLabs agent ID from config (if available)
+        if (firebaseConfig.elevenLabsAgentId) {
+            const widget = document.getElementById('elevenlabsWidget');
+            if (widget) {
+                widget.setAttribute('agent-id', firebaseConfig.elevenLabsAgentId);
+            }
+        }
+
+        const notesUrlParams = new URLSearchParams(window.location.search);
+        const notesSubject = notesUrlParams.get('subject') || 'General Learning';
+        let sessionDocId = null;
+
+        // Ensure the session is logged so it appears in Automated Learning Notes
+        async function createSessionRecord(user) {
+            try {
+                const sessionsRef = collection(db, 'users', user.uid, 'sessions');
+                const docRef = await addDoc(sessionsRef, {
+                    subject,
+                    notes: `Session with ElevenLabs agent on "${notesSubject}". Notes were not captured automatically in real-time.`,
+                    source: 'elevenlabs-embed',
+                    language: 'en',
+                    timestamp: serverTimestamp()
+                });
+                sessionDocId = docRef.id;
+                console.log('📒 Saved session for notes:', sessionDocId);
+            } catch (err) {
+                console.error('❌ Failed to save session for notes:', err);
+            }
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                // Require auth to tie notes to the user
+                window.location.href = 'landing.html';
+                return;
+            }
+            // Only create once per page load to avoid duplicates on reload
+            if (!sessionDocId) {
+                await createSessionRecord(user);
+            }
+        });
+    </script>
+    
+    <script>
+        // Get subject from URL and display it
+        const urlParams = new URLSearchParams(window.location.search);
+        const subject = urlParams.get('subject') || 'General Learning';
+        document.getElementById('subjectBadge').textContent = `📚 ${subject}`;
+        
+        // Force widget to center and maintain size after it loads
+        function centerWidget() {
+            const widget = document.querySelector('elevenlabs-convai');
+            if (widget) {
+                widget.style.width = '85vw';
+                widget.style.maxWidth = '1200px';
+                widget.style.height = '85vh';
+                widget.style.minHeight = '750px';
+                widget.style.maxHeight = '900px';
+                widget.style.margin = '0 auto';
+                widget.style.display = 'block';
+                widget.style.position = 'fixed';
+                widget.style.top = '50%';
+                widget.style.left = '50%';
+                widget.style.right = '';
+                widget.style.bottom = '';
+                widget.style.float = 'none';
+                widget.style.transform = 'translate(-50%, -50%)';
+                
+                // Also ensure parent container is centered
+                const container = widget.closest('.widget-container');
+                if (container) {
+                    container.style.marginLeft = 'auto';
+                    container.style.marginRight = 'auto';
+                    container.style.left = '0';
+                    container.style.right = '0';
+                }
+            }
+        }
+        
+        // Try multiple times to catch the widget when it loads
+        window.addEventListener('load', () => {
+            centerWidget();
+            setTimeout(centerWidget, 500);
+            setTimeout(centerWidget, 1000);
+            setTimeout(centerWidget, 2000);
+        });
+        
+        // Use MutationObserver to catch when widget is added to DOM
+        const observer = new MutationObserver(() => {
+            centerWidget();
+        });
+        
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    </script>
+
+    <script>
+        // Pomodoro widget (vanilla JS)
+        (function() {
+            const TEN_MIN = 10 * 60;
+            const POMO = 25 * 60;
+            let time = 0;
+            let timerId = null;
+            let isActive = true;
+            let shown10 = false;
+            let shown25 = false;
+
+            const elTime = document.getElementById('pomoTime');
+            const elMiniTime = document.getElementById('pomoMiniTime');
+            const elStatus = document.getElementById('pomoStatus');
+            const elBadge = document.getElementById('pomoBadge');
+            const elProgress = document.getElementById('pomoProgress');
+            const card = document.getElementById('pomoCard');
+            const mini = document.getElementById('pomoMini');
+            const modal10 = document.getElementById('pomoModal10');
+            const modal25 = document.getElementById('pomoModal25');
+            const btnMin = document.getElementById('pomoMinimize');
+            const btnHide = document.getElementById('pomoHide');
+
+            function fmt(sec) {
+                const m = Math.floor(sec / 60);
+                const s = sec % 60;
+                return `${m}:${s.toString().padStart(2, '0')}`;
+            }
+
+            function updateUI() {
+                elTime.textContent = fmt(time);
+                elMiniTime.textContent = fmt(time);
+                const pct = Math.min((time / POMO) * 100, 100);
+                elProgress.style.width = `${pct}%`;
+                if (!shown10) {
+                    elBadge.textContent = `Check-in at ${Math.ceil((TEN_MIN - time)/60)}m`;
+                } else if (!shown25) {
+                    elBadge.textContent = '💪 You are doing great!';
+                } else {
+                    elBadge.textContent = '🎉 Amazing work!';
+                }
+                elStatus.textContent = isActive ? '🚀 Learning mode' : '☕ Break time';
+            }
+
+            function showModal(modal) {
+                modal.classList.add('active');
+            }
+            function hideModal(modal) {
+                modal.classList.remove('active');
+            }
+
+            function resetSession(toBreak) {
+                time = 0;
+                shown10 = false;
+                shown25 = false;
+                isActive = !toBreak;
+                updateUI();
+            }
+
+            function tick() {
+                if (!isActive) return;
+                time += 1;
+                if (time >= TEN_MIN && !shown10) {
+                    shown10 = true;
+                    showModal(modal10);
+                }
+                if (time >= POMO && !shown25) {
+                    shown25 = true;
+                    showModal(modal25);
+                }
+                updateUI();
+            }
+
+            function startTimer() {
+                if (timerId) clearInterval(timerId);
+                timerId = setInterval(tick, 1000);
+            }
+
+            // Modal buttons
+            modal10.addEventListener('click', (e) => {
+                const action = e.target.dataset.action;
+                if (!action) return;
+                if (action === 'continue-10') {
+                    hideModal(modal10);
+                } else if (action === 'break-10') {
+                    hideModal(modal10);
+                    resetSession(true);
+                } else if (action === 'close-10') {
+                    hideModal(modal10);
+                }
+            });
+
+            modal25.addEventListener('click', (e) => {
+                const action = e.target.dataset.action;
+                if (!action) return;
+                if (action === 'continue-25') {
+                    hideModal(modal25);
+                } else if (action === 'break-25') {
+                    hideModal(modal25);
+                    resetSession(true);
+                } else if (action === 'close-25') {
+                    hideModal(modal25);
+                }
+            });
+
+            // Minimize / hide
+            btnMin.addEventListener('click', () => {
+                card.style.display = 'none';
+                mini.style.display = 'inline-flex';
+            });
+            mini.addEventListener('click', () => {
+                mini.style.display = 'none';
+                card.style.display = 'block';
+                card.classList.add('animate');
+                setTimeout(() => card.classList.remove('animate'), 350);
+            });
+            btnHide.addEventListener('click', () => {
+                document.getElementById('pomoFloating').style.display = 'none';
+                hideModal(modal10);
+                hideModal(modal25);
+                if (timerId) clearInterval(timerId);
+            });
+
+            updateUI();
+            startTimer();
+        })();
+    </script>
+</body>
+</html>

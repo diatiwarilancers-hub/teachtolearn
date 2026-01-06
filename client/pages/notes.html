@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automated Learning Notes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <style>
+        :root {
+            --bg: #05060c;
+            --card: #0f111b;
+            --border: rgba(255, 255, 255, 0.06);
+            --text: #f9fafb;
+            --muted: #9ca3af;
+            --purple: #a855f7;
+            --purple-strong: #7c3aed;
+            --green: #22c55e;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: radial-gradient(circle at 20% 20%, rgba(124,58,237,0.08), transparent 25%),
+                        radial-gradient(circle at 80% 10%, rgba(34,197,94,0.08), transparent 20%),
+                        radial-gradient(circle at 50% 80%, rgba(168,85,247,0.08), transparent 22%),
+                        var(--bg);
+            color: var(--text);
+            font-family: "Inter", system-ui, -apple-system, sans-serif;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 28px;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            color: var(--text);
+            text-decoration: none;
+            background: rgba(255,255,255,0.03);
+            transition: all 0.2s ease;
+        }
+        .back-link:hover {
+            border-color: var(--purple);
+            color: #fff;
+            box-shadow: 0 0 0 4px rgba(124,58,237,0.15);
+        }
+        .title {
+            font-size: 28px;
+            font-weight: 800;
+            margin: 0;
+        }
+        .subtitle {
+            margin: 4px 0 0;
+            color: var(--muted);
+            font-weight: 500;
+        }
+        .layout {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 20px;
+            padding: 0 28px 28px;
+        }
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+        }
+        .panel h3 {
+            margin: 0 0 12px;
+            font-size: 16px;
+            letter-spacing: 0.2px;
+            color: #e5e7eb;
+        }
+        .session-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: calc(100vh - 170px);
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .session-card {
+            width: 100%;
+            text-align: left;
+            padding: 12px 14px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.02);
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .session-card:hover {
+            border-color: var(--purple);
+            background: rgba(124,58,237,0.08);
+        }
+        .session-card.active {
+            border-color: var(--purple);
+            background: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(124,58,237,0.08));
+            box-shadow: 0 10px 35px rgba(124,58,237,0.25);
+        }
+        .session-title {
+            margin: 0 0 6px;
+            font-size: 15px;
+            font-weight: 700;
+        }
+        .session-meta {
+            margin: 0;
+            font-size: 12px;
+            color: var(--muted);
+        }
+        .detail {
+            min-height: 420px;
+        }
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(124,58,237,0.15);
+            color: #e9d5ff;
+            border: 1px solid rgba(124,58,237,0.35);
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+        .note-body {
+            white-space: pre-wrap;
+            line-height: 1.6;
+            color: #e5e7eb;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+        }
+        .note-meta {
+            color: var(--muted);
+            font-size: 13px;
+            margin-top: 12px;
+        }
+        .cta-row {
+            margin-top: 16px;
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.03);
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-weight: 700;
+        }
+        .btn:hover {
+            border-color: var(--purple);
+            box-shadow: 0 0 0 4px rgba(124,58,237,0.12);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--purple), var(--purple-strong));
+            border-color: var(--purple-strong);
+            color: #fff;
+            box-shadow: 0 12px 35px rgba(124,58,237,0.35);
+        }
+        .empty {
+            color: var(--muted);
+            text-align: center;
+            padding: 20px 12px;
+            border: 1px dashed var(--border);
+            border-radius: 14px;
+        }
+        @media (max-width: 960px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+            .session-list {
+                max-height: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a class="back-link" href="dashboard.html">← Back to Dashboard</a>
+        <div>
+            <p class="title">Automated Learning Notes</p>
+            <p class="subtitle">Review notes from every learning session.</p>
+        </div>
+    </header>
+
+    <div class="layout">
+        <section class="panel">
+            <h3>Sessions</h3>
+            <div id="sessionList" class="session-list">
+                <div class="empty">Loading sessions...</div>
+            </div>
+        </section>
+
+        <section class="panel detail">
+            <div class="note-header">
+                <div>
+                    <p id="noteTitle" class="title" style="font-size:20px; margin:0;">Select a session</p>
+                    <p id="noteSubtitle" class="subtitle" style="margin:4px 0 0;">Notes will appear here.</p>
+                </div>
+                <span id="notePill" class="pill" style="display:none;">Session</span>
+            </div>
+            <div id="noteBody" class="note-body">Choose a session on the left to view its notes.</div>
+            <div id="noteMeta" class="note-meta"></div>
+            <div class="cta-row">
+                <button id="openSessionBtn" class="btn btn-primary" disabled>Open session</button>
+                <button id="refreshBtn" class="btn">Refresh list</button>
+                <button id="generateNotesBtn" class="btn btn-primary">Automates Learning Notes</button>
+            </div>
+        </section>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, collection, query, orderBy, getDocs, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Load Firebase config from server (loaded from .env on server-side)
+        let firebaseConfig;
+        try {
+            const configRes = await fetch('/api/firebase-config');
+            firebaseConfig = await configRes.json();
+        } catch (err) {
+            console.error('Failed to load Firebase config from server, using fallback:', err);
+            // Fallback config (same as default in server)
+            firebaseConfig = {
+                apiKey: "AIzaSyBSFzIVTqrnq21jVG71XmUuN19s7g9pt2I",
+                authDomain: "teachbackai-69ee6.firebaseapp.com",
+                projectId: "teachbackai-69ee6",
+                storageBucket: "teachbackai-69ee6.firebasestorage.app",
+                messagingSenderId: "930240111308",
+                appId: "1:930240111308:web:e477e73249eb2951b29869"
+            };
+        }
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let sessions = [];
+        let activeSessionId = null;
+
+        const sessionListEl = document.getElementById('sessionList');
+        const noteTitleEl = document.getElementById('noteTitle');
+        const noteSubtitleEl = document.getElementById('noteSubtitle');
+        const noteBodyEl = document.getElementById('noteBody');
+        const noteMetaEl = document.getElementById('noteMeta');
+        const notePillEl = document.getElementById('notePill');
+        const openSessionBtn = document.getElementById('openSessionBtn');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const generateNotesBtn = document.getElementById('generateNotesBtn');
+
+        let isGeneratingNotes = false;
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'landing.html';
+                return;
+            }
+            currentUser = user;
+            await loadSessions();
+        });
+
+        refreshBtn.addEventListener('click', loadSessions);
+        openSessionBtn.addEventListener('click', () => {
+            if (activeSessionId) {
+                window.location.href = `app.html?session=${activeSessionId}`;
+            }
+        });
+
+        generateNotesBtn.addEventListener('click', handleGenerateNotesClick);
+
+        async function loadSessions() {
+            if (!currentUser) return;
+            sessionListEl.innerHTML = '<div class="empty">Loading sessions...</div>';
+            try {
+                const sessionsRef = collection(db, 'users', currentUser.uid, 'sessions');
+                const q = query(sessionsRef, orderBy('timestamp', 'desc'));
+                const snap = await getDocs(q);
+                sessions = [];
+                snap.forEach((d) => {
+                    sessions.push({ id: d.id, ...d.data() });
+                });
+                renderSessionList();
+            } catch (err) {
+                console.error('Error loading sessions', err);
+                sessionListEl.innerHTML = '<div class="empty">Could not load sessions.</div>';
+            }
+        }
+
+        function renderSessionList() {
+            if (!sessions.length) {
+                sessionListEl.innerHTML = '<div class="empty">No sessions yet. Start a Teach Out Loud session to generate notes.</div>';
+                noteTitleEl.textContent = 'No sessions';
+                noteSubtitleEl.textContent = 'Notes will appear after you finish a session.';
+                noteBodyEl.textContent = 'Start a new session to create notes.';
+                noteMetaEl.textContent = '';
+                notePillEl.style.display = 'none';
+                openSessionBtn.disabled = true;
+                return;
+            }
+
+            sessionListEl.innerHTML = '';
+            sessions.forEach((session) => {
+                const card = document.createElement('button');
+                card.className = 'session-card';
+                card.innerHTML = `
+                    <p class="session-title">${session.subject || 'Untitled Session'}</p>
+                    <p class="session-meta">${formatDate(session.timestamp?.toDate())}</p>
+                `;
+                card.onclick = () => selectSession(session.id);
+                if (session.id === activeSessionId) {
+                    card.classList.add('active');
+                }
+                sessionListEl.appendChild(card);
+            });
+
+            if (!activeSessionId) {
+                selectSession(sessions[0].id);
+            } else {
+                selectSession(activeSessionId);
+            }
+        }
+
+        async function selectSession(sessionId) {
+            activeSessionId = sessionId;
+            Array.from(sessionListEl.children).forEach((c, idx) => {
+                c.classList.toggle('active', sessions[idx]?.id === sessionId);
+            });
+            await loadSessionDetails(sessionId);
+        }
+
+        async function loadSessionDetails(sessionId) {
+            try {
+                const docRef = doc(db, 'users', currentUser.uid, 'sessions', sessionId);
+                const snap = await getDoc(docRef);
+                if (!snap.exists()) {
+                    noteTitleEl.textContent = 'Session not found';
+                    noteBodyEl.textContent = 'This session record is missing.';
+                    noteSubtitleEl.textContent = '';
+                    noteMetaEl.textContent = '';
+                    notePillEl.style.display = 'none';
+                    openSessionBtn.disabled = true;
+                    return;
+                }
+                const data = snap.data();
+                const title = data.subject || 'Untitled Session';
+                const notes = data.notes || data.summary || data.transcript || 'No notes saved for this session yet.';
+                const meta = formatDate(data.timestamp?.toDate());
+
+                noteTitleEl.textContent = title;
+                noteSubtitleEl.textContent = meta ? `Captured ${meta}` : 'Timestamp unknown';
+                noteBodyEl.textContent = notes;
+                noteMetaEl.textContent = data.language ? `Language: ${data.language}` : '';
+                notePillEl.style.display = 'inline-flex';
+                notePillEl.textContent = 'Session Notes';
+                openSessionBtn.disabled = false;
+            } catch (err) {
+                console.error('Error loading session details', err);
+                noteTitleEl.textContent = 'Error loading notes';
+                noteBodyEl.textContent = 'Please try again.';
+                noteSubtitleEl.textContent = '';
+                noteMetaEl.textContent = '';
+                notePillEl.style.display = 'none';
+                openSessionBtn.disabled = true;
+            }
+        }
+
+        function formatDate(dateObj) {
+            if (!dateObj) return '';
+            return dateObj.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+
+        // --- ElevenLabs + Gemini notes generation (latest conversation) ---
+
+        async function handleGenerateNotesClick() {
+            if (isGeneratingNotes) return;
+
+            console.log('[Notes UI] Automates Learning Notes button clicked');
+
+            isGeneratingNotes = true;
+            generateNotesBtn.disabled = true;
+            const originalLabel = generateNotesBtn.textContent;
+            generateNotesBtn.textContent = 'Generating notes...';
+
+            // Show a subtle status in the UI
+            noteSubtitleEl.textContent = 'Generating AI notes from your latest conversation...';
+            noteMetaEl.textContent = '';
+
+            try {
+                const res = await fetch('/api/generate-notes');
+                let data = {};
+                try {
+                    data = await res.json();
+                } catch {
+                    data = {};
+                }
+
+                console.log('[Notes UI] /api/generate-notes response status:', res.status, 'data:', data);
+
+                if (!res.ok) {
+                    const msg =
+                        (data && data.message) ||
+                        'Failed to generate notes. Please try again.';
+
+                    // Friendly message for "no conversation yet"
+                    if (
+                        msg.includes('No recent conversation') ||
+                        msg.includes('Teach the AI first')
+                    ) {
+                        noteBodyEl.textContent =
+                            'Teach the AI first, then generate notes.';
+                    } else {
+                        noteBodyEl.textContent = msg;
+                    }
+                    noteMetaEl.textContent = '';
+                    return;
+                }
+
+                const notes = typeof data.notes === 'string' && data.notes.trim()
+                    ? data.notes
+                    : 'No notes received';
+                const source = data.source || 'elevenlabs';
+                const messageCount = typeof data.messageCount === 'number'
+                    ? data.messageCount
+                    : null;
+
+                noteBodyEl.textContent = notes;
+
+                if (messageCount !== null) {
+                    noteMetaEl.textContent = `Generated from ${messageCount} message(s) • Source: ${source}`;
+                } else {
+                    noteMetaEl.textContent = `Source: ${source}`;
+                }
+
+                notePillEl.style.display = 'inline-flex';
+                notePillEl.textContent = 'AI Notes';
+                noteSubtitleEl.textContent = 'Latest conversation summarized into study notes.';
+            } catch (err) {
+                console.error('[Notes UI] Error calling /api/generate-notes:', err);
+                noteBodyEl.textContent = 'Failed to generate notes. Please try again.';
+                noteMetaEl.textContent = '';
+            } finally {
+                isGeneratingNotes = false;
+                generateNotesBtn.disabled = false;
+                generateNotesBtn.textContent = originalLabel;
+            }
+        }
+    </script>
+</body>
+</html>

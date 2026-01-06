@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - TeachToLearn</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --black: #000000;
+            --bg-soft: #0a0a0f;
+            --bg-card: #12121a;
+            --purple-neon: #a855f7;
+            --purple-soft: #c084fc;
+            --purple-dim: rgba(168, 85, 247, 0.15);
+            --purple-glow: rgba(168, 85, 247, 0.3);
+            --text-white: #ffffff;
+            --text-gray: #a1a1aa;
+            --text-muted: #71717a;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+        
+        body {
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--black);
+            color: var(--text-white);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Twinkling Stars Background */
+        .stars-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .star.small {
+            width: 1px;
+            height: 1px;
+        }
+
+        .star.medium {
+            width: 2px;
+            height: 2px;
+        }
+
+        .star.large {
+            width: 3px;
+            height: 3px;
+        }
+
+        @keyframes twinkle {
+            0%, 100% {
+                opacity: 0.3;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .star.twinkle {
+            animation: twinkle var(--twinkle-duration) ease-in-out infinite;
+            animation-delay: var(--twinkle-delay);
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            background: var(--bg-soft);
+            border-right: 1px solid var(--border);
+            padding: 2rem 1rem;
+            position: fixed;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-white);
+            margin-bottom: 3rem;
+            padding: 0 1rem;
+        }
+        
+        .nav-menu {
+            flex: 1;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            color: var(--text-gray);
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            margin-bottom: 0.5rem;
+        }
+        
+        .nav-item:hover {
+            background: var(--purple-dim);
+            color: var(--text-white);
+        }
+        
+        .nav-item.active {
+            background: var(--purple-dim);
+            color: var(--purple-soft);
+            border: 1px solid var(--purple-neon);
+        }
+        
+        .nav-icon {
+            font-size: 1.25rem;
+        }
+        
+        .user-section {
+            border-top: 1px solid var(--border);
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid var(--purple-neon);
+        }
+        
+        .user-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-white);
+        }
+        
+        .logout-btn {
+            width: 100%;
+            padding: 0.75rem 1.25rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            font-weight: 500;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+        
+        .logout-btn:hover {
+            border-color: var(--purple-neon);
+            color: var(--text-white);
+            background: var(--purple-dim);
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: 240px;
+            flex: 1;
+            padding: 3rem 4rem;
+            max-width: 1400px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        /* Page Title */
+        .page-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            letter-spacing: -0.02em;
+        }
+        
+        /* Action Cards Section */
+        .action-cards-section {
+            margin-bottom: 5rem;
+        }
+        
+        .action-cards {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .action-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 3rem 2.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            max-width: 320px;
+            flex: 1;
+            min-width: 280px;
+        }
+        
+        .action-card:hover {
+            border-color: var(--purple-neon);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px var(--purple-glow);
+        }
+        
+        .action-card-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+        
+        .action-card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-white);
+            margin-bottom: 0.5rem;
+        }
+        
+        .action-card-description {
+            font-size: 0.95rem;
+            color: var(--text-gray);
+            line-height: 1.5;
+        }
+        
+        /* Recent Items Section */
+        .recent-section {
+            margin-bottom: 4rem;
+        }
+        
+        .section-header {
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: var(--text-white);
+        }
+        
+        .recent-items {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .recent-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .recent-item:hover {
+            border-color: var(--purple-neon);
+            transform: translateX(4px);
+        }
+        
+        .item-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--purple-dim);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        
+        .item-content {
+            flex: 1;
+        }
+        
+        .item-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-white);
+            margin-bottom: 0.25rem;
+        }
+        
+        .item-meta {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        .item-arrow {
+            color: var(--text-muted);
+            font-size: 1.25rem;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-gray);
+        }
+        
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .empty-state-text {
+            font-size: 1.125rem;
+        }
+        
+        /* Modal for subject input */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 2rem;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .modal-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .modal-description {
+            font-size: 1.125rem;
+            color: var(--text-gray);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .modal-input {
+            width: 100%;
+            padding: 1.25rem 1.5rem;
+            background: var(--bg-soft);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-white);
+            font-size: 1.125rem;
+            font-family: inherit;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-input:focus {
+            outline: none;
+            border-color: var(--purple-neon);
+            box-shadow: 0 0 0 3px var(--purple-dim);
+        }
+        
+        .modal-input::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .modal-btn {
+            flex: 1;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-btn-primary {
+            background: var(--purple-neon);
+            color: white;
+            box-shadow: 0 8px 24px var(--purple-glow);
+        }
+        
+        .modal-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px var(--purple-glow);
+        }
+        
+        .modal-btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-gray);
+        }
+        
+        .modal-btn-secondary:hover {
+            background: var(--bg-soft);
+            color: var(--text-white);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 2rem 1.5rem;
+            }
+            
+            .page-title {
+                font-size: 2.25rem;
+            }
+            
+            .action-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Twinkling Stars Background -->
+    <div class="stars-container" id="starsContainer"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">TeachToLearn</div>
+        
+        <nav class="nav-menu">
+            <a href="#" class="nav-item active">
+                <span class="nav-icon">🏠</span>
+                Dashboard
+            </a>
+            <a href="#" class="nav-item">
+                <span class="nav-icon">📚</span>
+                Study Sessions
+            </a>
+            <a href="#" class="nav-item">
+                <span class="nav-icon">⚙️</span>
+                Settings
+            </a>
+        </nav>
+        
+        <div class="user-section">
+            <div class="user-info">
+                <img src="" alt="User" class="user-avatar" id="userAvatar">
+                <div>
+                    <div class="user-name" id="userName">Loading...</div>
+                </div>
+            </div>
+            <button class="logout-btn" id="logoutBtn">Sign Out</button>
+        </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        <h1 class="page-title">Time to Learn</h1>
+        
+        <!-- Action Cards -->
+        <section class="action-cards-section">
+            <div class="action-cards">
+                <div class="action-card" id="teachVoiceCard">
+                    <span class="action-card-icon">🎤</span>
+                    <h3 class="action-card-title">Teach Out Loud</h3>
+                    <p class="action-card-description">Start teaching and get instant feedback</p>
+                </div>
+                
+                <div class="action-card" id="reviewFeedbackCard">
+                    <span class="action-card-icon">📊</span>
+                    <h3 class="action-card-title">Automated Learning Notes</h3>
+                    <p class="action-card-description">View notes from your past sessions</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Recent Sessions -->
+        <section class="recent-section">
+            <div class="section-header">
+                <h2 class="section-title">Recent Sessions</h2>
+            </div>
+            
+            <div class="recent-items" id="recentItems">
+                <!-- Empty state will show if no sessions -->
+                <div class="empty-state">
+                    <div class="empty-state-icon">📭</div>
+                    <p class="empty-state-text">No sessions yet. Start teaching to begin!</p>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Subject Input Modal -->
+    <div class="modal" id="subjectModal">
+        <div class="modal-content">
+            <h2 class="modal-title">What are you learning?</h2>
+            <p class="modal-description">Tell me what subject you want to teach</p>
+            <input 
+                type="text" 
+                class="modal-input" 
+                id="subjectInput" 
+                placeholder="e.g., Biology, Math, History..."
+                autocomplete="off"
+            >
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-secondary" id="modalCancelBtn">Cancel</button>
+                <button class="modal-btn modal-btn-primary" id="modalStartBtn">Start Teaching</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, collection, query, orderBy, limit, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Load Firebase config from server (loaded from .env on server-side)
+        let firebaseConfig;
+        try {
+            const configRes = await fetch('/api/firebase-config');
+            firebaseConfig = await configRes.json();
+        } catch (err) {
+            console.error('Failed to load Firebase config from server, using fallback:', err);
+            // Fallback config (same as default in server)
+            firebaseConfig = {
+                apiKey: "AIzaSyBSFzIVTqrnq21jVG71XmUuN19s7g9pt2I",
+                authDomain: "teachbackai-69ee6.firebaseapp.com",
+                projectId: "teachbackai-69ee6",
+                storageBucket: "teachbackai-69ee6.firebasestorage.app",
+                messagingSenderId: "930240111308",
+                appId: "1:930240111308:web:e477e73249eb2951b29869"
+            };
+        }
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        let currentUser = null;
+
+        // Check authentication
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('userName').textContent = user.displayName || 'User';
+                if (user.photoURL) {
+                    document.getElementById('userAvatar').src = user.photoURL;
+                }
+                
+                await loadRecentSessions();
+            } else {
+                window.location.href = '/pages/landing.html';
+            }
+        });
+
+        // Load recent sessions from Firestore
+        async function loadRecentSessions() {
+            try {
+                const sessionsRef = collection(db, 'users', currentUser.uid, 'sessions');
+                const q = query(sessionsRef, orderBy('timestamp', 'desc'), limit(5));
+                const querySnapshot = await getDocs(q);
+                
+                if (!querySnapshot.empty) {
+                    const recentItems = document.getElementById('recentItems');
+                    recentItems.innerHTML = '';
+                    
+                    querySnapshot.forEach((doc) => {
+                        const session = doc.data();
+                        const item = createRecentItem(session, doc.id);
+                        recentItems.appendChild(item);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading sessions:', error);
+            }
+        }
+
+        // Create recent item element
+        function createRecentItem(session, id) {
+            const item = document.createElement('div');
+            item.className = 'recent-item';
+            item.onclick = () => continueSession(id);
+            
+            const timeAgo = getTimeAgo(session.timestamp?.toDate());
+            
+            item.innerHTML = `
+                <div class="item-icon">🎤</div>
+                <div class="item-content">
+                    <div class="item-title">${session.subject || 'Untitled Session'}</div>
+                    <div class="item-meta">Last opened ${timeAgo}</div>
+                </div>
+                <div class="item-arrow">→</div>
+            `;
+            
+            return item;
+        }
+
+        // Helper function for time ago
+        function getTimeAgo(date) {
+            if (!date) return 'recently';
+            const seconds = Math.floor((new Date() - date) / 1000);
+            if (seconds < 60) return 'just now';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes}m ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            const days = Math.floor(hours / 24);
+            return `${days}d ago`;
+        }
+
+        // Continue existing session
+        function continueSession(sessionId) {
+            window.location.href = `app.html?session=${sessionId}`;
+        }
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                window.location.href = '/pages/landing.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        });
+
+        // Modal handling
+        const modal = document.getElementById('subjectModal');
+        const subjectInput = document.getElementById('subjectInput');
+        const modalCancelBtn = document.getElementById('modalCancelBtn');
+        const modalStartBtn = document.getElementById('modalStartBtn');
+        const teachVoiceCard = document.getElementById('teachVoiceCard');
+
+        teachVoiceCard.addEventListener('click', () => {
+            modal.classList.add('active');
+            setTimeout(() => subjectInput.focus(), 100);
+        });
+
+        modalCancelBtn.addEventListener('click', () => {
+            modal.classList.remove('active');
+            subjectInput.value = '';
+        });
+
+        modalStartBtn.addEventListener('click', startTeaching);
+        subjectInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') startTeaching();
+        });
+
+        function startTeaching() {
+            const subject = subjectInput.value.trim();
+            if (!subject) {
+                subjectInput.style.borderColor = 'var(--purple-neon)';
+                return;
+            }
+            window.location.href = `app.html?subject=${encodeURIComponent(subject)}`;
+        }
+
+        // Automated Learning Notes
+        document.getElementById('reviewFeedbackCard').addEventListener('click', () => {
+            window.location.href = 'notes.html';
+        });
+
+        // Generate Twinkling Stars
+        const starsContainer = document.getElementById('starsContainer');
+        const numberOfStars = 100;
+
+        for (let i = 0; i < numberOfStars; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star', 'twinkle');
+            
+            const size = Math.random();
+            if (size < 0.5) {
+                star.classList.add('small');
+            } else if (size < 0.85) {
+                star.classList.add('medium');
+            } else {
+                star.classList.add('large');
+            }
+            
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            
+            star.style.setProperty('--twinkle-duration', (Math.random() * 3 + 2) + 's');
+            star.style.setProperty('--twinkle-delay', (Math.random() * 5) + 's');
+            
+            starsContainer.appendChild(star);
+        }
+    </script>
+</body>
+</html>

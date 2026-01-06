@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Learning Companion</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 900px;
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .header {
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      color: #333;
+    }
+
+    .header p {
+      color: #666;
+      margin-top: 6px;
+    }
+
+    .bot-area {
+      flex: 1;
+      background: #f4f6fb;
+      border-radius: 18px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    elevenlabs-convai {
+      width: 100%;
+      height: 520px;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 14px;
+      color: #888;
+    }
+
+    @media (max-width: 600px) {
+      elevenlabs-convai {
+        height: 420px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <div class="header">
+      <h1>🤖 Learning Companion</h1>
+      <p>Explain concepts in your own words — I’ll help you improve.</p>
+    </div>
+
+    <!-- 🔥 THIS IS WHERE THE BOT SHOULD BE -->
+    <div class="bot-area">
+      <elevenlabs-convai
+        id="elevenlabsWidget"
+        agent-id="">
+      </elevenlabs-convai>
+    </div>
+
+    <div class="footer">
+      Speak naturally. The AI listens, understands, and responds in real time.
+    </div>
+  </div>
+
+  <!-- ElevenLabs Conversational Agent Widget -->
+  <script
+    src="https://unpkg.com/@elevenlabs/convai-widget-embed"
+    async
+    type="text/javascript">
+  </script>
+
+</body>
+</html>

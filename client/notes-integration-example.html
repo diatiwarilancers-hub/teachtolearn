@@ -1,0 +1,44 @@
+<!-- 
+  EXAMPLE HTML STRUCTURE FOR NOTES GENERATION FEATURE
+  
+  Add these elements to your chat interface HTML page where you want the button and notes display.
+  Make sure your page imports main.js as a module.
+-->
+
+<!-- Button: "Automates Learning Notes" -->
+<button id="generateNotesBtn" disabled>
+  Automates Learning Notes
+</button>
+
+<!-- Notes Display Container (initially hidden) -->
+<div id="notesDisplay" style="display: none; margin-top: 20px; padding: 20px; background: #f5f5f5; border-radius: 8px;">
+  <h3>Generated Notes</h3>
+  
+  <!-- Loading State -->
+  <div id="notesLoading" style="display: none;">
+    <p>Generating notes...</p>
+  </div>
+  
+  <!-- Error State -->
+  <div id="notesError" style="display: none; color: red; padding: 10px; background: #ffe6e6; border-radius: 4px;">
+    <!-- Error message will appear here -->
+  </div>
+  
+  <!-- Notes Content -->
+  <div id="notesContent" style="display: none; white-space: pre-wrap; line-height: 1.6; color: #333;">
+    <!-- Generated notes will appear here -->
+  </div>
+  
+  <!-- Metadata -->
+  <div class="notes-meta" style="margin-top: 10px; font-size: 0.9em; color: #666;">
+    <!-- Metadata will appear here -->
+  </div>
+</div>
+
+<!-- 
+  IMPORTANT: Make sure your HTML page includes:
+  <script type="module" src="main.js"></script>
+  
+  The main.js file will automatically wire up the button and handle all the functionality.
+-->
+

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pomodoro</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, Arial;
+      background: #f4f6fb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .card {
+      width: 360px;
+      background: white;
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+      text-align: center;
+    }
+
+    h1 { margin: 0; font-size: 20px; }
+    .time {
+      margin: 14px 0;
+      font-size: 54px;
+      font-weight: 800;
+    }
+
+    .sub {
+      color: #666;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+
+    .bar {
+      width: 100%;
+      height: 10px;
+      background: #eee;
+      border-radius: 100px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .bar > div {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ff4d4d, #ff8c42);
+      transition: width 0.4s;
+    }
+
+    .btns {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    button {
+      border: none;
+      padding: 12px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .start { background: #22c55e; color: white; }
+    .pause { background: #f59e0b; color: white; }
+    .reset { background: #ef4444; color: white; }
+
+    .modalBackdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .modal {
+      background: white;
+      width: 420px;
+      max-width: 100%;
+      border-radius: 18px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 20px 70px rgba(0,0,0,0.3);
+    }
+
+    .modal h2 { margin: 0 0 10px; }
+    .modal p { margin: 0 0 16px; color: #444; }
+
+    .modal .btns {
+      flex-direction: column;
+    }
+
+    .keep { background: #22c55e; color: white; }
+    .break { background: #3b82f6; color: white; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>⏳ Pomodoro Timer</h1>
+    <div class="time" id="time">0:00</div>
+    <div class="sub" id="mode">🚀 Learning Mode</div>
+
+    <div class="bar"><div id="progress"></div></div>
+
+    <div class="btns">
+      <button class="start" id="startBtn">Start</button>
+      <button class="pause" id="pauseBtn">Pause</button>
+      <button class="reset" id="resetBtn">Reset</button>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modalBackdrop" id="modalBackdrop">
+    <div class="modal">
+      <h2 id="modalTitle">Reminder</h2>
+      <p id="modalText">You've been learning.</p>
+      <div class="btns">
+        <button class="keep" id="keepBtn">🚀 Keep Learning</button>
+        <button class="break" id="breakBtn">☕ Take a Break</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  let seconds = 0;
+  let interval = null;
+  let active = false;
+
+  const TEN_MIN = 10 * 60;
+  const POMO = 25 * 60;
+
+  let shown10 = false;
+  let shown25 = false;
+
+  const timeEl = document.getElementById("time");
+  const modeEl = document.getElementById("mode");
+  const progressEl = document.getElementById("progress");
+
+  const modalBackdrop = document.getElementById("modalBackdrop");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalText = document.getElementById("modalText");
+
+  function formatTime(s) {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${m}:${String(sec).padStart(2, "0")}`;
+  }
+
+  function updateUI() {
+    timeEl.textContent = formatTime(seconds);
+    progressEl.style.width = `${Math.min((seconds / POMO) * 100, 100)}%`;
+    modeEl.textContent = active ? "🚀 Learning Mode" : "☕ Break Time";
+  }
+
+  function showModal(type) {
+    if (type === "10") {
+      modalTitle.textContent = "🌟 10-min Check-in";
+      modalText.textContent = "You’ve been learning for 10 minutes. Want to continue or take a short break?";
+    } else {
+      modalTitle.textContent = "🎉 25-min Break Time";
+      modalText.textContent = "Nice work! You hit 25 minutes. Take a break or continue?";
+    }
+    modalBackdrop.style.display = "flex";
+  }
+
+  function hideModal() {
+    modalBackdrop.style.display = "none";
+  }
+
+  function tick() {
+    seconds += 1;
+
+    if (seconds >= TEN_MIN && !shown10) {
+      shown10 = true;
+      showModal("10");
+    }
+
+    if (seconds >= POMO && !shown25) {
+      shown25 = true;
+      showModal("25");
+    }
+
+    updateUI();
+  }
+
+  document.getElementById("startBtn").onclick = () => {
+    if (active) return;
+    active = true;
+    interval = setInterval(tick, 1000);
+    updateUI();
+  };
+
+  document.getElementById("pauseBtn").onclick = () => {
+    active = false;
+    clearInterval(interval);
+    interval = null;
+    updateUI();
+  };
+
+  document.getElementById("resetBtn").onclick = () => {
+    active = false;
+    clearInterval(interval);
+    interval = null;
+    seconds = 0;
+    shown10 = false;
+    shown25 = false;
+    hideModal();
+    updateUI();
+  };
+
+  document.getElementById("keepBtn").onclick = () => {
+    hideModal();
+  };
+
+  document.getElementById("breakBtn").onclick = () => {
+    // break = stop + reset
+    active = false;
+    clearInterval(interval);
+    interval = null;
+    seconds = 0;
+    shown10 = false;
+    shown25 = false;
+    hideModal();
+    updateUI();
+  };
+
+  updateUI();
+</script>
+
+</body>
+</html>
