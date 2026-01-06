@@ -447,6 +447,178 @@
             color: var(--text-white);
         }
         
+        /* Onboarding Modal Styles */
+        .onboarding-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 2rem;
+        }
+
+        .onboarding-overlay.hidden {
+            display: none;
+        }
+
+        .onboarding-modal {
+            background: var(--bg-card);
+            border-radius: 24px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+        }
+
+        .onboarding-content {
+            padding: 3rem;
+        }
+
+        .onboarding-close-btn {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-gray);
+            font-size: 1.75rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .onboarding-close-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-white);
+        }
+
+        .onboarding-indicators {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .onboarding-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #3f3f46;
+            transition: all 0.3s;
+        }
+
+        .onboarding-indicator.active {
+            background: var(--purple-neon);
+            width: 32px;
+            border-radius: 5px;
+        }
+
+        .onboarding-step {
+            display: none;
+        }
+
+        .onboarding-step.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .onboarding-step-title {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .onboarding-step-description {
+            font-size: 1.125rem;
+            color: var(--text-gray);
+            margin-bottom: 2rem;
+            line-height: 1.7;
+        }
+
+        .onboarding-video-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .onboarding-video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+
+        .onboarding-video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .onboarding-nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 3rem;
+        }
+
+        .onboarding-btn {
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            border: none;
+        }
+
+        .onboarding-btn-back {
+            background: transparent;
+            border: 2px solid #3f3f46;
+            color: var(--text-gray);
+        }
+
+        .onboarding-btn-back:hover {
+            border-color: #52525b;
+            color: var(--text-white);
+        }
+
+        .onboarding-btn-next {
+            background: var(--purple-neon);
+            color: white;
+            box-shadow: 0 0 20px var(--purple-glow);
+        }
+
+        .onboarding-btn-next:hover {
+            background: var(--purple-soft);
+            box-shadow: 0 0 30px var(--purple-glow);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .sidebar {
@@ -464,6 +636,18 @@
             
             .action-cards {
                 grid-template-columns: 1fr;
+            }
+
+            .onboarding-content {
+                padding: 2rem;
+            }
+
+            .onboarding-step-title {
+                font-size: 1.75rem;
+            }
+
+            .onboarding-step-description {
+                font-size: 1rem;
             }
         }
     </style>
@@ -539,6 +723,95 @@
         </section>
     </main>
     
+    <!-- Onboarding Modal -->
+    <div class="onboarding-overlay hidden" id="onboardingOverlay">
+        <div class="onboarding-modal">
+            <button class="onboarding-close-btn" id="onboardingCloseBtn">✕</button>
+            
+            <div class="onboarding-content">
+                <!-- Indicators -->
+                <div class="onboarding-indicators">
+                    <div class="onboarding-indicator active" data-step="1"></div>
+                    <div class="onboarding-indicator" data-step="2"></div>
+                    <div class="onboarding-indicator" data-step="3"></div>
+                    <div class="onboarding-indicator" data-step="4"></div>
+                </div>
+
+                <!-- Step 1: Welcome -->
+                <div class="onboarding-step active" data-step="1">
+                    <h1 class="onboarding-step-title">Welcome to TeachToLearn</h1>
+                    <p class="onboarding-step-description">
+                        Learn smarter and faster with an AI tutor. Click 'Next' to get started!
+                    </p>
+                </div>
+
+                <!-- Step 2: How to Use -->
+                <div class="onboarding-step" data-step="2">
+                    <h1 class="onboarding-step-title">How to use</h1>
+                    <p class="onboarding-step-description">
+                        Watch this quick tutorial to see how TeachToLearn works.
+                    </p>
+                    <div class="onboarding-video-box">
+                        <div class="onboarding-video-container">
+                            <iframe 
+                                src="https://www.youtube.com/embed/1PmMYYjvc8Y" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Pomodoro Timer -->
+                <div class="onboarding-step" data-step="3">
+                    <h1 class="onboarding-step-title">Pomodoro timer</h1>
+                    <p class="onboarding-step-description">
+                        Stay focused with our built-in timer that floats in the corner.
+                    </p>
+                    <div class="onboarding-video-box">
+                        <div class="onboarding-video-container">
+                            <iframe 
+                                src="https://www.youtube.com/embed/1PmMYYjvc8Y" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Session Feedback -->
+                <div class="onboarding-step" data-step="4">
+                    <h1 class="onboarding-step-title">Session feedback</h1>
+                    <p class="onboarding-step-description">
+                        Get personalized feedback after each session to track your progress.
+                    </p>
+                    <div class="onboarding-video-box">
+                        <div class="onboarding-video-container">
+                            <iframe 
+                                src="https://www.youtube.com/embed/1PmMYYjvc8Y" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="onboarding-nav-buttons">
+                    <button class="onboarding-btn onboarding-btn-back" id="onboardingBackBtn" style="visibility: hidden;">
+                        Back
+                    </button>
+                    <button class="onboarding-btn onboarding-btn-next" id="onboardingNextBtn">
+                        Next
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Subject Input Modal -->
     <div class="modal" id="subjectModal">
         <div class="modal-content">
@@ -562,7 +835,7 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getFirestore, collection, query, orderBy, limit, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, collection, query, orderBy, limit, getDocs, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         // Load Firebase config from server (loaded from .env on server-side)
         let firebaseConfig;
@@ -598,6 +871,7 @@
                 }
                 
                 await loadRecentSessions();
+                await checkAndShowOnboarding();
             } else {
                 window.location.href = '/pages/landing.html';
             }
@@ -707,6 +981,98 @@
         // Automated Learning Notes
         document.getElementById('reviewFeedbackCard').addEventListener('click', () => {
             window.location.href = 'notes.html';
+        });
+
+        // Onboarding functionality
+        let onboardingCurrentStep = 1;
+        const onboardingTotalSteps = 4;
+
+        async function checkAndShowOnboarding() {
+            if (!currentUser) return;
+            
+            try {
+                const userRef = doc(db, 'users', currentUser.uid);
+                const userDoc = await getDoc(userRef);
+                
+                if (!userDoc.exists() || !userDoc.data().hasCompletedOnboarding) {
+                    // Show onboarding for new users
+                    showOnboarding();
+                }
+            } catch (error) {
+                console.error('Error checking onboarding status:', error);
+                // If there's an error, show onboarding anyway to be safe
+                showOnboarding();
+            }
+        }
+
+        function showOnboarding() {
+            const overlay = document.getElementById('onboardingOverlay');
+            overlay.classList.remove('hidden');
+            onboardingCurrentStep = 1;
+            updateOnboardingDisplay();
+        }
+
+        function hideOnboarding() {
+            const overlay = document.getElementById('onboardingOverlay');
+            overlay.classList.add('hidden');
+        }
+
+        async function completeOnboarding() {
+            if (!currentUser) return;
+            
+            try {
+                const userRef = doc(db, 'users', currentUser.uid);
+                await setDoc(userRef, {
+                    hasCompletedOnboarding: true
+                }, { merge: true });
+                hideOnboarding();
+            } catch (error) {
+                console.error('Error saving onboarding completion:', error);
+                hideOnboarding(); // Hide anyway even if save fails
+            }
+        }
+
+        function updateOnboardingDisplay() {
+            // Update steps
+            document.querySelectorAll('.onboarding-step').forEach((step, index) => {
+                step.classList.toggle('active', index + 1 === onboardingCurrentStep);
+            });
+
+            // Update indicators
+            document.querySelectorAll('.onboarding-indicator').forEach((indicator, index) => {
+                indicator.classList.toggle('active', index + 1 === onboardingCurrentStep);
+            });
+
+            // Update buttons
+            const backBtn = document.getElementById('onboardingBackBtn');
+            const nextBtn = document.getElementById('onboardingNextBtn');
+            
+            backBtn.style.visibility = onboardingCurrentStep === 1 ? 'hidden' : 'visible';
+            nextBtn.textContent = onboardingCurrentStep === onboardingTotalSteps ? 'Get Started' : 'Next';
+        }
+
+        function nextOnboardingStep() {
+            if (onboardingCurrentStep < onboardingTotalSteps) {
+                onboardingCurrentStep++;
+                updateOnboardingDisplay();
+            } else {
+                // Complete onboarding
+                completeOnboarding();
+            }
+        }
+
+        function prevOnboardingStep() {
+            if (onboardingCurrentStep > 1) {
+                onboardingCurrentStep--;
+                updateOnboardingDisplay();
+            }
+        }
+
+        // Onboarding event listeners
+        document.getElementById('onboardingNextBtn').addEventListener('click', nextOnboardingStep);
+        document.getElementById('onboardingBackBtn').addEventListener('click', prevOnboardingStep);
+        document.getElementById('onboardingCloseBtn').addEventListener('click', () => {
+            completeOnboarding();
         });
 
         // Generate Twinkling Stars
