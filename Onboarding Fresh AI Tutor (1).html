@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to TeachToLearn</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --purple: #a855f7;
+            --purple-soft: #c084fc;
+            --purple-glow: rgba(168, 85, 247, 0.5);
+            --dark: #1a1a1a;
+            --darker: #0a0a0f;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #000000;
+            color: white;
+            overflow: hidden;
+            position: relative;
+            height: 100vh;
+        }
+
+        /* Stars Background */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+        }
+
+        /* Shooting Stars */
+        .shooting-star {
+            position: fixed;
+            width: 3px;
+            height: 3px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 10px 4px rgba(255, 255, 255, 1), 0 0 20px 8px rgba(168, 85, 247, 0.5);
+            opacity: 0;
+            z-index: 1;
+        }
+
+        @keyframes shoot {
+            0% {
+                opacity: 0;
+                transform: translateX(0) translateY(0);
+            }
+            5% {
+                opacity: 1;
+            }
+            95% {
+                opacity: 0.9;
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(-500px) translateY(500px);
+            }
+        }
+
+        /* Onboarding Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 2rem;
+        }
+
+        .modal-overlay.hidden {
+            display: none;
+        }
+
+        .modal {
+            background: var(--dark);
+            border-radius: 24px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            padding: 3rem;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            color: #9ca3af;
+            font-size: 1.75rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        /* Step Indicators */
+        .indicators {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #3f3f46;
+            transition: all 0.3s;
+        }
+
+        .indicator.active {
+            background: var(--purple);
+            width: 32px;
+            border-radius: 5px;
+        }
+
+        /* Steps */
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .step-title {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .step-description {
+            font-size: 1.125rem;
+            color: #a1a1aa;
+            margin-bottom: 2rem;
+            line-height: 1.7;
+        }
+
+        .video-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .video-placeholder {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            height: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #71717a;
+            font-size: 1rem;
+        }
+
+        /* Navigation */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 3rem;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            border: none;
+        }
+
+        .btn-back {
+            background: transparent;
+            border: 2px solid #3f3f46;
+            color: #a1a1aa;
+        }
+
+        .btn-back:hover {
+            border-color: #52525b;
+            color: white;
+        }
+
+        .btn-next {
+            background: var(--purple);
+            color: white;
+            box-shadow: 0 0 20px var(--purple-glow);
+        }
+
+        .btn-next:hover {
+            background: var(--purple-soft);
+            box-shadow: 0 0 30px var(--purple-glow);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .modal-content {
+                padding: 2rem;
+            }
+
+            .step-title {
+                font-size: 1.75rem;
+            }
+
+            .step-description {
+                font-size: 1rem;
+            }
+
+            .video-placeholder {
+                height: 200px;
+            }
+
+            .completion h1 {
+                font-size: 2rem;
+            }
+
+            .completion p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Stars -->
+    <div class="stars" id="stars"></div>
+
+    <!-- Shooting Stars -->
+    <div class="shooting-star" id="shooter1"></div>
+    <div class="shooting-star" id="shooter2"></div>
+    <div class="shooting-star" id="shooter3"></div>
+
+    <!-- Onboarding Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <button class="close-btn" onclick="skipOnboarding()">✕</button>
+            
+            <div class="modal-content">
+                <!-- Indicators -->
+                <div class="indicators">
+                    <div class="indicator active"></div>
+                    <div class="indicator"></div>
+                    <div class="indicator"></div>
+                    <div class="indicator"></div>
+                </div>
+
+                <!-- Step 1: Welcome -->
+                <div class="step active" data-step="1">
+                    <h1 class="step-title">Welcome to TeachToLearn</h1>
+                    <p class="step-description">
+                        Learn smarter and faster with an AI tutor. Click 'Next' to get started!
+                    </p>
+                </div>
+
+                <!-- Step 2: How to Use -->
+                <div class="step" data-step="2">
+                    <h1 class="step-title">How to use</h1>
+                    <p class="step-description">
+                        Watch this quick tutorial to see how TeachToLearn works.
+                    </p>
+                    <div class="video-box">
+                        <div style="height: 350px; border-radius: 12px; overflow: hidden;">
+                            <iframe 
+                                width="100%" 
+                                height="100%" 
+                                src="https://www.youtube.com/embed/1PmMYYjvc8Y" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen
+                                style="border: none;">
+                            </iframe>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Pomodoro Timer -->
+                <div class="step" data-step="3">
+                    <h1 class="step-title">Pomodoro timer</h1>
+                    <p class="step-description">
+                        Stay focused with our built-in timer that floats in the corner.
+                    </p>
+                    <div class="video-box">
+                        <div class="video-placeholder">
+                            <iframe 
+                                width="100%" 
+                                height="100%" 
+                                src="https://www.youtube.com/embed/1PmMYYjvc8Y" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen
+                                style="border-radius: 12px; border: none;">
+                            </iframe>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Session Feedback -->
+                <div class="step" data-step="4">
+                    <h1 class="step-title">Session feedback</h1>
+                    <p class="step-description">
+                        Get personalized feedback after each session to track your progress.
+                    </p>
+                    <div class="video-box">
+                        <div class="video-placeholder">
+                            <iframe 
+                                width="100%" 
+                                height="100%" 
+                                src="https://www.youtube.com/embed/1PmMYYjvc8Y" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen
+                                style="border-radius: 12px; border: none;">
+                            </iframe>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="nav-buttons">
+                    <button class="btn btn-back" id="backBtn" onclick="prevStep()" style="visibility: hidden;">
+                        Back
+                    </button>
+                    <button class="btn btn-next" id="nextBtn" onclick="nextStep()">
+                        Next
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 4;
+
+        // Generate Stars
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 150; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.width = Math.random() < 0.6 ? '1px' : Math.random() < 0.9 ? '2px' : '3px';
+            star.style.height = star.style.width;
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            starsContainer.appendChild(star);
+        }
+
+        // Shooting Stars
+        const shooters = [
+            document.getElementById('shooter1'),
+            document.getElementById('shooter2'),
+            document.getElementById('shooter3')
+        ];
+
+        function createShootingStar() {
+            const shooter = shooters[Math.floor(Math.random() * shooters.length)];
+            shooter.style.left = (Math.random() * 50 + 50) + '%';
+            shooter.style.top = (Math.random() * 30) + '%';
+            shooter.style.animation = 'none';
+            void shooter.offsetWidth; // Trigger reflow
+            shooter.style.animation = 'shoot 2s ease-out forwards';
+        }
+
+        setInterval(createShootingStar, 3000);
+        setTimeout(createShootingStar, 500);
+
+        // Navigation
+        function updateDisplay() {
+            // Update steps
+            document.querySelectorAll('.step').forEach((step, index) => {
+                step.classList.toggle('active', index + 1 === currentStep);
+            });
+
+            // Update indicators
+            document.querySelectorAll('.indicator').forEach((indicator, index) => {
+                indicator.classList.toggle('active', index + 1 === currentStep);
+            });
+
+            // Update buttons
+            const backBtn = document.getElementById('backBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            backBtn.style.visibility = currentStep === 1 ? 'hidden' : 'visible';
+            nextBtn.textContent = currentStep === totalSteps ? 'Get Started' : 'Next';
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                updateDisplay();
+            } else {
+                // Restart demo from beginning
+                currentStep = 1;
+                updateDisplay();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateDisplay();
+            }
+        }
+
+        function skipOnboarding() {
+            // For demo purposes, just restart
+            currentStep = 1;
+            updateDisplay();
+        }
+
+        // Always show onboarding on load (demo mode)
+    </script>
+</body>
+</html>
